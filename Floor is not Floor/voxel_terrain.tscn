@@ -1,0 +1,145 @@
+[gd_scene load_steps=25 format=3 uid="uid://c65l4ooxkycm1"]
+
+[ext_resource type="Script" path="res://World.gd" id="1_0svym"]
+[ext_resource type="PackedScene" uid="uid://bx2h2ajhhif0n" path="res://player.tscn" id="1_vig5r"]
+[ext_resource type="Texture2D" uid="uid://48tgdub43fmp" path="res://dirt_albedo.png" id="2_5rta7"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7dvrs"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_apvfl"]
+
+[sub_resource type="Sky" id="Sky_h6ibo"]
+sky_material = SubResource("ProceduralSkyMaterial_apvfl")
+
+[sub_resource type="Environment" id="Environment_e15yg"]
+background_mode = 2
+background_energy_multiplier = 1.67
+sky = SubResource("Sky_h6ibo")
+sdfgi_enabled = true
+fog_light_color = Color(0.541176, 0.576471, 0.631373, 1)
+fog_sky_affect = 0.725
+volumetric_fog_density = 0.009
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_5nl20"]
+noise_type = 4
+seed = 1
+fractal_octaves = 2
+fractal_lacunarity = 1.0
+
+[sub_resource type="VoxelGeneratorNoise" id="VoxelGeneratorNoise_pubjm"]
+noise = SubResource("FastNoiseLite_5nl20")
+height_start = -20.0
+
+[sub_resource type="VoxelMesherTransvoxel" id="VoxelMesherTransvoxel_e8r1w"]
+texturing_mode = 1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5h7of"]
+disable_fog = true
+albedo_color = Color(0.682353, 0.698039, 0.372549, 1)
+metallic_specular = 0.12
+roughness = 0.0
+roughness_texture = ExtResource("2_5rta7")
+
+[sub_resource type="VoxelInstanceGenerator" id="VoxelInstanceGenerator_587by"]
+density = 0.005
+emit_mode = 2
+min_slope_degrees = 8.609
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7cdel"]
+albedo_color = Color(0.313726, 0.239216, 0.101961, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_5vfnm"]
+custom_aabb = AABB(0, 20, 0, 0, 0, 0)
+top_radius = 1.37
+height = 40.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_asa31"]
+top_radius = 2.239
+bottom_radius = 0.065
+height = 35.478
+
+[sub_resource type="VoxelInstanceLibraryMultiMeshItem" id="VoxelInstanceLibraryMultiMeshItem_4psqe"]
+lod_index = 1
+generator = SubResource("VoxelInstanceGenerator_587by")
+mesh = SubResource("CylinderMesh_5vfnm")
+mesh_lod1 = SubResource("CylinderMesh_asa31")
+material_override = SubResource("StandardMaterial3D_7cdel")
+gi_mode = 0
+
+[sub_resource type="VoxelInstanceGenerator" id="VoxelInstanceGenerator_u1jvj"]
+density = 0.017
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_conb6"]
+albedo_color = Color(0.384314, 0.423529, 1, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_hym4s"]
+center_offset = Vector3(0, 20, 0)
+
+[sub_resource type="VoxelInstanceLibraryMultiMeshItem" id="VoxelInstanceLibraryMultiMeshItem_jvf5a"]
+lod_index = 1
+generator = SubResource("VoxelInstanceGenerator_u1jvj")
+mesh = SubResource("PlaneMesh_hym4s")
+material_override = SubResource("StandardMaterial3D_conb6")
+
+[sub_resource type="VoxelInstanceGenerator" id="VoxelInstanceGenerator_ur7tj"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_q83x4"]
+
+[sub_resource type="VoxelInstanceLibraryMultiMeshItem" id="VoxelInstanceLibraryMultiMeshItem_ixbqs"]
+lod_index = 1
+generator = SubResource("VoxelInstanceGenerator_ur7tj")
+mesh = SubResource("BoxMesh_q83x4")
+
+[sub_resource type="VoxelInstanceLibrary" id="VoxelInstanceLibrary_trjtu"]
+item_1 = SubResource("VoxelInstanceLibraryMultiMeshItem_4psqe")
+item_2 = SubResource("VoxelInstanceLibraryMultiMeshItem_jvf5a")
+item_3 = SubResource("VoxelInstanceLibraryMultiMeshItem_ixbqs")
+
+[node name="Main" type="Node"]
+
+[node name="World" type="Node3D" parent="."]
+script = ExtResource("1_0svym")
+
+[node name="RigidBody3D" type="RigidBody3D" parent="World"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/RigidBody3D"]
+shape = SubResource("BoxShape3D_7dvrs")
+disabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="World"]
+environment = SubResource("Environment_e15yg")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 0.834848, 0.550481, 0, -0.550481, 0.834848, 0, 13.9838, 0)
+shadow_enabled = true
+shadow_normal_bias = 2.905
+shadow_blur = 2.357
+
+[node name="VoxelLodTerrain" type="VoxelLodTerrain" parent="World" groups=["terrain"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -176.757, 0)
+generator = SubResource("VoxelGeneratorNoise_pubjm")
+mesher = SubResource("VoxelMesherTransvoxel_e8r1w")
+material = SubResource("StandardMaterial3D_5h7of")
+
+[node name="VoxelViewer" type="VoxelViewer" parent="World/VoxelLodTerrain"]
+
+[node name="VoxelInstancer" type="VoxelInstancer" parent="World/VoxelLodTerrain"]
+library = SubResource("VoxelInstanceLibrary_trjtu")
+
+[node name="player" parent="World" instance=ExtResource("1_vig5r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -72.2467, -2.55896, -11.658)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="World" groups=["wall"]]
+transform = Transform3D(-4.26051e-08, -0.223556, 0.974691, -9.77196e-09, 0.974691, 0.223556, -1, 0, -4.37114e-08, 5.09073, -22.0443, -12.6482)
+use_collision = true
+size = Vector3(32.4399, 20, 1)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="World/CSGBox3D" groups=["wall"]]
+transform = Transform3D(-0.0383474, -0.0572816, 0.997621, 0.00322965, 0.998343, 0.0574473, -0.999259, 0.00542499, -0.0380989, 5.09073, 12.4778, -29.117)
+use_collision = true
+size = Vector3(32.4399, 20, 1)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -68.8533, -4.97468, -12.6232)
+use_collision = true
+size = Vector3(11.4138, 0.345947, 11.2994)
