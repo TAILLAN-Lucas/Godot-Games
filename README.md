@@ -5,6 +5,7 @@ Zorg is a 2D game developped in Godot as a first-time Godot user.
 It is a game where the player has to move around to dodge mob named "Zorg".
 The player wins point every second they stay alive.
 The executable of the game is available in the release section.
+
 ## Floor is not Floor
 A 3D game developped and is still in development.
 World is generated using the Godot Voxel module.
